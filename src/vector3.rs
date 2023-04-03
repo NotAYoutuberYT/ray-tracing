@@ -14,7 +14,7 @@ impl Vector3 {
     }
 
     /// Creates a new Vector3 from the 3 given terms
-    pub fn new(term1: f64, term2: f64, term3: f64) -> Vector3 {
+    pub const fn new(term1: f64, term2: f64, term3: f64) -> Vector3 {
         Vector3 {
             terms: [term1, term2, term3],
         }

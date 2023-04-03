@@ -1,4 +1,6 @@
+mod camera;
 mod colors;
+mod constants;
 mod hit;
 mod material;
 mod objects;
@@ -8,6 +10,8 @@ mod vector3;
 
 extern crate anyhow;
 
+use crate::camera::Camera;
+use crate::constants::{IMAGE_HEIGHT, IMAGE_WIDTH, VIEWPORT_HEIGHT, VIEWPORT_WIDTH};
 use crate::material::Material;
 use crate::objects::Object;
 use crate::sphere::Sphere;
@@ -23,14 +27,6 @@ use std::{
 };
 use vector3::Vector3 as Color;
 use vector3::Vector3;
-
-const IMAGE_WIDTH: u32 = 800;
-const IMAGE_HEIGHT: u32 = 450;
-
-const VIEWPORT_WIDTH: f64 = 3.5;
-const FOCAL_LENGTH: f64 = 1.0;
-
-const VIEWPORT_HEIGHT: f64 = VIEWPORT_WIDTH / (IMAGE_WIDTH as f64 / IMAGE_HEIGHT as f64);
 
 #[derive(Parser)]
 #[command(author = "<utbryceh@gmail.com>")]
@@ -84,28 +80,20 @@ fn main() -> anyhow::Result<()> {
         .rewind()
         .with_context(|| "Issue seeking beginning of file after clearing")?;
 
-    // output info
+    // output ppm info
     output_file
         .write(format!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT).as_bytes())
         .with_context(|| format!("Issue writing to file `{}`", args.file.display()))?;
 
-    // get some helpful vectors
-    let horizontal = Vector3::new(VIEWPORT_WIDTH, 0.0, 0.0);
-    let vertical = Vector3::new(0.0, VIEWPORT_HEIGHT, 0.0);
-    let lower_left_corner = Vector3::default()
-        - horizontal / 2.0
-        - vertical / 2.0
-        - Vector3::new(0.0, 0.0, FOCAL_LENGTH);
+    // create a camera
+    let camera = Camera::new(Vector3::default());
 
     for y in (0..IMAGE_HEIGHT).rev() {
         for x in 0..IMAGE_WIDTH {
             let width_ratio = x as f64 / (IMAGE_WIDTH - 1) as f64;
             let height_ratio = y as f64 / (IMAGE_HEIGHT - 1) as f64;
-            let ray = Ray::new(
-                Vector3::default(),
-                lower_left_corner + width_ratio * horizontal + height_ratio * vertical
-                    - Vector3::default(),
-            );
+
+            let ray = camera.get_ray(width_ratio, height_ratio);
             let pixel_color = ray_color(ray);
 
             write_color(&mut output_file, &pixel_color)?;
