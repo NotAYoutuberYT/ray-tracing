@@ -23,7 +23,7 @@ impl Sphere {
 }
 
 impl Object for Sphere {
-    fn get_hit(self, ray: &Ray) -> Option<Hit> {
+    fn get_hit(&self, ray: &Ray) -> Option<Hit> {
         // get the origin of the ray relative to if this sphere's center
         let relative_ray_origin = ray.origin() - self.center;
 
@@ -42,7 +42,17 @@ impl Object for Sphere {
         }
 
         // calculate the nearest hit distance from the quadratic formula
-        let distance = -half_quadratic_b - quadratic_root.sqrt() / quadratic_a;
+        let mut distance = -half_quadratic_b - quadratic_root.sqrt() / quadratic_a;
+
+        // negative solutions are invalid so check if the
+        // other solution is valid and if so take it
+        if distance < 0.0 {
+            distance = -half_quadratic_b + quadratic_root.sqrt() / quadratic_a;
+
+            if distance < 0.0 {
+                return None;
+            }
+        }
 
         // extrapolate the point of the hit, the normal vector, and if
         // the hit was from the outside of the object or not
@@ -50,7 +60,13 @@ impl Object for Sphere {
         let normal_vector = (hit_point - self.center) / self.radius;
         let outside_hit = normal_vector.dot(&ray.direction()) <= 0.0;
 
-        Some(Hit::new(distance, hit_point, normal_vector, outside_hit))
+        Some(Hit::new(
+            distance,
+            hit_point,
+            normal_vector,
+            outside_hit,
+            self.material,
+        ))
     }
 
     fn material(self) -> Material {

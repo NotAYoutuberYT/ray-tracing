@@ -8,6 +8,11 @@ pub const IMAGE_HEIGHT: u32 = 450;
 pub const VIEWPORT_WIDTH: f64 = 3.5;
 pub const FOCAL_LENGTH: f64 = 1.0;
 
+// image quality
+pub const MAX_BOUNCES: u32 = 10;
+pub const RAYS_PER_PIXEL: u32 = 2000;
+pub const ANTIALIASING_STRENGTH: f64 = 1.0;
+
 //
 // Don't manually modify these
 //

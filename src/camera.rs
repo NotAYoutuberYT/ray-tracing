@@ -3,6 +3,7 @@ use crate::ray::Ray;
 use crate::vector3::Vector3;
 
 /// Represents a camera to render an image from
+#[derive(Copy, Clone)]
 pub struct Camera {
     position: Vector3,
     viewport_lower_left_corner: Vector3,
@@ -16,7 +17,7 @@ impl Camera {
             viewport_lower_left_corner: position
                 - VIEWPORT_WIDTH_VECTOR / 2.0
                 - VIEWPORT_HEIGHT_VECTOR / 2.0
-                - Vector3::new(0.0, 0.0, FOCAL_LENGTH),
+                + Vector3::new(0.0, 0.0, FOCAL_LENGTH),
         }
     }
 

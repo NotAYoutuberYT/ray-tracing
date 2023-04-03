@@ -14,10 +14,8 @@ impl Vector3 {
     }
 
     /// Creates a new Vector3 from the 3 given terms
-    pub const fn new(term1: f64, term2: f64, term3: f64) -> Vector3 {
-        Vector3 {
-            terms: [term1, term2, term3],
-        }
+    pub const fn new(x: f64, y: f64, z: f64) -> Vector3 {
+        Vector3 { terms: [x, y, z] }
     }
 
     /// Returns the x-component of the vector
@@ -69,6 +67,11 @@ impl Vector3 {
             self[2] * other[0] - self[0] * other[2],
             self[0] * other[1] - self[1] * other[0],
         )
+    }
+
+    /// Reflects a Vector3 across a normalized vector
+    pub fn reflect(self, normal: &Vector3) -> Vector3 {
+        self - 2.0 * (self * *normal) * *normal
     }
 }
 
