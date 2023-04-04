@@ -7,7 +7,6 @@ use std::f64::consts::PI;
 #[derive(Copy, Clone)]
 pub struct Camera {
     position: Vector3,
-    rotation: Quaternion,
     unrotated_viewport_lower_left_corner: Vector3,
     unrotated_viewport_width_vector: Vector3,
     unrotated_viewport_height_vector: Vector3,
@@ -42,7 +41,6 @@ impl Camera {
         // return the created camera
         Camera {
             position,
-            rotation,
             unrotated_viewport_lower_left_corner,
             unrotated_viewport_width_vector,
             unrotated_viewport_height_vector,
@@ -54,10 +52,10 @@ impl Camera {
     pub fn get_ray(&self, width_progress: f64, height_progress: f64) -> Ray {
         Ray::new(
             self.position,
-            (self.unrotated_viewport_lower_left_corner
+            self.unrotated_viewport_lower_left_corner
                 + width_progress * self.unrotated_viewport_width_vector
                 + height_progress * self.unrotated_viewport_height_vector
-                - self.position),
+                - self.position,
         )
     }
 }

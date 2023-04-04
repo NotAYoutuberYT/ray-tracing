@@ -57,7 +57,7 @@ struct Cli {
 fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
     let objects: [&dyn Object; 7] = [
         &Sphere::new(
-            Vector3::new(20.0, 0.0, 10.0),
+            Vector3::new(16.0, 0.0, 80.0),
             8.0,
             Material::new(
                 Color::new(0.0, 0.0, 0.0),
@@ -72,12 +72,12 @@ fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
             Material::new_lightless(Color::new(0.8, 0.2, 0.2), 0.0),
         ),
         &Sphere::new(
-            Vector3::new(12.0, -10.0, -1.0),
+            Vector3::new(9.0, -10.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
         ),
         &Sphere::new(
-            Vector3::new(12.0, -5.0, -1.0),
+            Vector3::new(11.0, -5.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
         ),
@@ -87,12 +87,12 @@ fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
             Material::new_lightless(Color::new(0.6, 0.0, 0.6), 1.0),
         ),
         &Sphere::new(
-            Vector3::new(12.0, 5.0, -1.0),
+            Vector3::new(11.0, 5.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
         ),
         &Sphere::new(
-            Vector3::new(12.0, 10.0, -1.0),
+            Vector3::new(9.0, 10.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
         ),
@@ -131,7 +131,7 @@ fn main() -> anyhow::Result<()> {
 
     // create a camera
     let camera = Camera::new(
-        Vector3::new(0.0, 0.0, 5.0),
+        Vector3::new(-4.0, 0.0, 8.0),
         Quaternion::new(Vector3::new(0.0, 1.0, 0.0), 40.0),
         HORIZONTAL_FOV_DEGREES,
         ASPECT_RATIO,

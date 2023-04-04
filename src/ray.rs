@@ -38,7 +38,7 @@ impl Ray {
 
     /// Gets the environment light of a ray
     pub fn get_environment_light(self) -> Vector3 {
-        let lerp_amount: f64 = (self.direction.y() + 1.0) * 0.5;
+        let lerp_amount: f64 = (self.direction.z() + 1.0) * 0.5;
         LOWER_SKY_COLOR.lerp(&UPPER_SKY_COLOR, lerp_amount)
     }
 
