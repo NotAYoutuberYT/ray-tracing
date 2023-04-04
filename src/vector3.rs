@@ -90,7 +90,11 @@ impl Vector3 {
         let quaternion_vector = (rotation * quaternion_point) * rotation_prime;
 
         // discard w
-        Vector3::new(quaternion_vector.x(), quaternion_vector.y(), quaternion_vector.z())
+        Vector3::new(
+            quaternion_vector.x(),
+            quaternion_vector.y(),
+            quaternion_vector.z(),
+        )
     }
 }
 

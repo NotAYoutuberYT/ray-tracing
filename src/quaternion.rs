@@ -14,22 +14,33 @@ pub struct Quaternion {
 impl Quaternion {
     /// Creates a new Quaternion from a direction vector
     /// and a rotation around that vector
-    pub fn new(direction: Vector3, rotation_degrees: f64) -> Quaternion {
+    pub fn new(axis: Vector3, angle_degrees: f64) -> Quaternion {
+        // axis must be normalized
+        let axis_normalized = axis.normalized();
+
         // degree to quaternion constant divided by 2
         let angle_constant: f64 = PI / 360.0;
 
         Quaternion {
-            w: (rotation_degrees * angle_constant).cos(),
-            x: (rotation_degrees * angle_constant).sin() * direction.x(),
-            y: (rotation_degrees * angle_constant).sin() * direction.y(),
-            z: (rotation_degrees * angle_constant).sin() * direction.z(),
+            w: (angle_degrees * angle_constant).cos(),
+            x: (angle_degrees * angle_constant).sin() * axis_normalized.x(),
+            y: (angle_degrees * angle_constant).sin() * axis_normalized.y(),
+            z: (angle_degrees * angle_constant).sin() * axis_normalized.z(),
         }
     }
+
+    /// Creates a new Quaternion from a direction to point in
+    /// and a rotation about that vector
 
     /// Creates a new Quaternion directly from w, x, y, and z components
     /// (useful for hamiltonian products)
     pub fn new_raw(w: f64, x: f64, y: f64, z: f64) -> Quaternion {
         Quaternion { w, x, y, z }
+    }
+
+    /// Returns a Quaternion facing directly forwards with no rotation
+    pub fn default() -> Quaternion {
+        Quaternion::new(Vector3::new(0.0, 0.0, 1.0), 0.0)
     }
 
     /// Returns the w component of the Quaternion
@@ -51,7 +62,7 @@ impl Quaternion {
     pub fn z(self) -> f64 {
         self.z
     }
-    
+
     /// Negates the x, y, and z components of the Quaternion
     pub fn negated_vector(self) -> Quaternion {
         Quaternion::new_raw(self.w, -self.x, -self.y, -self.z)

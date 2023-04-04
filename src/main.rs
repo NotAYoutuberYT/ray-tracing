@@ -12,9 +12,13 @@ mod vector3;
 extern crate anyhow;
 
 use crate::camera::Camera;
-use crate::constants::{ANTIALIASING_STRENGTH, IMAGE_HEIGHT, IMAGE_WIDTH, RAYS_PER_PIXEL};
+use crate::constants::{
+    ANTIALIASING_STRENGTH, ASPECT_RATIO, HORIZONTAL_FOV_DEGREES, IMAGE_HEIGHT, IMAGE_WIDTH,
+    RAYS_PER_PIXEL,
+};
 use crate::material::Material;
 use crate::objects::Object;
+use crate::quaternion::Quaternion;
 use crate::sphere::Sphere;
 use anyhow::Context;
 use clap::Parser;
@@ -22,14 +26,12 @@ use progress_bar::{finalize_progress_bar, inc_progress_bar, init_progress_bar};
 use rand::rngs::ThreadRng;
 use rand::Rng;
 use ray::Ray;
+use std::fs;
 use std::fs::File;
+use std::io::{Seek, Write};
+use std::path::PathBuf;
+use std::thread;
 use std::thread::JoinHandle;
-use std::{
-    fs,
-    io::{Seek, Write},
-    path::PathBuf,
-    thread,
-};
 use vector3::Vector3 as Color;
 use vector3::Vector3;
 
@@ -55,7 +57,7 @@ struct Cli {
 fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
     let objects: [&dyn Object; 7] = [
         &Sphere::new(
-            Vector3::new(0.0, 16.0, -1.0),
+            Vector3::new(20.0, 0.0, 10.0),
             8.0,
             Material::new(
                 Color::new(0.0, 0.0, 0.0),
@@ -65,32 +67,32 @@ fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
             ),
         ),
         &Sphere::new(
-            Vector3::new(0.0, -31.0, 0.0),
+            Vector3::new(0.0, 0.0, -31.0),
             30.0,
             Material::new_lightless(Color::new(0.8, 0.2, 0.2), 0.0),
         ),
         &Sphere::new(
-            Vector3::new(-10.0, -1.0, 16.0),
+            Vector3::new(12.0, -10.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
         ),
         &Sphere::new(
-            Vector3::new(-5.0, -1.0, 16.0),
+            Vector3::new(12.0, -5.0, -1.0),
             2.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.5),
+            Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
         ),
         &Sphere::new(
-            Vector3::new(0.0, -1.0, 16.0),
+            Vector3::new(12.0, 0.0, -1.0),
             2.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 1.0),
+            Material::new_lightless(Color::new(0.6, 0.0, 0.6), 1.0),
         ),
         &Sphere::new(
-            Vector3::new(5.0, -1.0, 16.0),
+            Vector3::new(12.0, 5.0, -1.0),
             2.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.5),
+            Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
         ),
         &Sphere::new(
-            Vector3::new(10.0, -1.0, 16.0),
+            Vector3::new(12.0, 10.0, -1.0),
             2.0,
             Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
         ),
@@ -128,7 +130,12 @@ fn main() -> anyhow::Result<()> {
         .with_context(|| format!("Issue writing to file `{}`", args.file.display()))?;
 
     // create a camera
-    let camera = Camera::new(Vector3::default());
+    let camera = Camera::new(
+        Vector3::new(0.0, 0.0, 5.0),
+        Quaternion::new(Vector3::new(0.0, 1.0, 0.0), 40.0),
+        HORIZONTAL_FOV_DEGREES,
+        ASPECT_RATIO,
+    );
 
     // multithreading handles
     let mut handles: Vec<JoinHandle<Vec<Color>>> = Vec::new();

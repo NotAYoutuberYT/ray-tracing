@@ -1,4 +1,4 @@
-use crate::constants::{LOWER_SKY_COLOR, MAX_BOUNCES, UPPER_SKY_COLOR};
+use crate::constants::{BRIGHTNESS, LOWER_SKY_COLOR, MAX_BOUNCES, UPPER_SKY_COLOR};
 use crate::hit::Hit;
 use crate::objects::Object;
 use crate::random::random_unit_vector;
@@ -101,12 +101,18 @@ impl Ray {
                     let new_ray_direction =
                         diffuse_direction.lerp(&reflect_direction, hit.material.smoothness);
 
+                    // create new ray
                     ray = Ray::new(hit.point, new_ray_direction);
 
                     let material = hit.material;
                     let emitted_light = material.emission_color * material.emission_strength;
+
+                    // used to adjust for lambert's cos law
+                    let light_intensity = hit.normal.dot(&ray.direction);
+
+                    // update light and color
                     light += emitted_light * color;
-                    color *= material.color;
+                    color *= material.color * light_intensity * BRIGHTNESS;
                 }
             }
         }
