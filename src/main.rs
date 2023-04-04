@@ -3,6 +3,7 @@ mod constants;
 mod hit;
 mod material;
 mod objects;
+mod quaternion;
 mod random;
 mod ray;
 mod sphere;
@@ -54,7 +55,7 @@ struct Cli {
 fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
     let objects: [&dyn Object; 7] = [
         &Sphere::new(
-            Vector3::new(0.0, 16.0, 0.0),
+            Vector3::new(0.0, 16.0, -1.0),
             8.0,
             Material::new(
                 Color::new(0.0, 0.0, 0.0),
@@ -100,7 +101,7 @@ fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
 
 fn main() -> anyhow::Result<()> {
     // initialize progress bar
-    init_progress_bar(IMAGE_HEIGHT as usize * 2);
+    init_progress_bar(IMAGE_HEIGHT as usize);
 
     // get command-line arguments
     let args = Cli::parse();
@@ -165,8 +166,6 @@ fn main() -> anyhow::Result<()> {
             inc_progress_bar();
             pixel_colors
         }));
-
-        inc_progress_bar();
     }
 
     for handle in handles {

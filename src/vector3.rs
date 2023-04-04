@@ -1,3 +1,4 @@
+use crate::quaternion::Quaternion;
 use std::ops;
 
 /// A basic vector3 that can represent actual
@@ -78,6 +79,18 @@ impl Vector3 {
     /// (assumes self is starting vector)
     pub fn lerp(self, other: &Vector3, t: f64) -> Vector3 {
         (1.0 - t) * self + t * *other
+    }
+
+    /// Rotates a vector by a Quaternion
+    pub fn rotate_by(self, rotation: Quaternion) -> Vector3 {
+        let rotation_prime = rotation.negated_vector();
+        let quaternion_point = Quaternion::new_raw(0.0, self.x(), self.y(), self.z());
+
+        // we can calculate the rotated vector by doing a few hamiltonian products
+        let quaternion_vector = (rotation * quaternion_point) * rotation_prime;
+
+        // discard w
+        Vector3::new(quaternion_vector.x(), quaternion_vector.y(), quaternion_vector.z())
     }
 }
 

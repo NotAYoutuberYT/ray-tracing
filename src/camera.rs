@@ -7,18 +7,16 @@ use crate::vector3::Vector3;
 pub struct Camera {
     position: Vector3,
     viewport_lower_left_corner: Vector3,
+    viewport_width_vector: Vector3,
+    viewport_height_vector: Vector3,
 }
 
 impl Camera {
     /// Creates a new camera from a position
-    pub fn new(position: Vector3) -> Camera {
-        Camera {
-            position,
-            viewport_lower_left_corner: position
-                - VIEWPORT_WIDTH_VECTOR / 2.0
-                - VIEWPORT_HEIGHT_VECTOR / 2.0
-                + Vector3::new(0.0, 0.0, FOCAL_LENGTH),
-        }
+    pub fn new(position: Vector3, direction: Vector3, horizontal_fov_degrees: f64) -> Camera {
+        let direction_normalized = direction.normalized();
+
+        let viewport_width_vector = Vector3::new()
     }
 
     /// Gets a ray from the camera given an f64 from 0 to 1 representing how

@@ -10,7 +10,7 @@ pub const FOCAL_LENGTH: f64 = 2.0;
 
 // image quality
 pub const MAX_BOUNCES: u32 = 10;
-pub const RAYS_PER_PIXEL: u32 = 1500;
+pub const RAYS_PER_PIXEL: u32 = 1000;
 pub const ANTIALIASING_STRENGTH: f64 = 1.0;
 
 // sky colors
