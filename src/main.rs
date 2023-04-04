@@ -52,21 +52,46 @@ struct Cli {
 }
 
 fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
-    let objects: [&dyn Object; 3] = [
+    let objects: [&dyn Object; 7] = [
         &Sphere::new(
-            Vector3::new(6.0, 10.0, -10.0),
+            Vector3::new(0.0, 16.0, 0.0),
             8.0,
-            Material::new(Color::new(0.0, 0.0, 0.0), Color::new(0.93, 0.95, 0.2), 5.0),
+            Material::new(
+                Color::new(0.0, 0.0, 0.0),
+                0.0,
+                Color::new(0.93, 0.95, 0.2),
+                8.0,
+            ),
         ),
         &Sphere::new(
-            Vector3::new(0.0, -22.0, 6.0),
-            20.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2)),
+            Vector3::new(0.0, -31.0, 0.0),
+            30.0,
+            Material::new_lightless(Color::new(0.8, 0.2, 0.2), 0.0),
         ),
         &Sphere::new(
-            Vector3::new(1.0, 0.0, 6.0),
+            Vector3::new(-10.0, -1.0, 16.0),
             2.0,
-            Material::new_lightless(Color::new(0.8, 0.2, 0.2)),
+            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
+        ),
+        &Sphere::new(
+            Vector3::new(-5.0, -1.0, 16.0),
+            2.0,
+            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.5),
+        ),
+        &Sphere::new(
+            Vector3::new(0.0, -1.0, 16.0),
+            2.0,
+            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 1.0),
+        ),
+        &Sphere::new(
+            Vector3::new(5.0, -1.0, 16.0),
+            2.0,
+            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.5),
+        ),
+        &Sphere::new(
+            Vector3::new(10.0, -1.0, 16.0),
+            2.0,
+            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
         ),
     ];
 

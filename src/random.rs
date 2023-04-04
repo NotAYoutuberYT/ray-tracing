@@ -9,7 +9,7 @@ pub fn random_normal_distribution(rng: &mut ThreadRng) -> f64 {
     rho * theta.cos()
 }
 
-pub fn random_direction(rng: &mut ThreadRng) -> Vector3 {
+pub fn random_unit_vector(rng: &mut ThreadRng) -> Vector3 {
     Vector3::new(
         random_normal_distribution(rng),
         random_normal_distribution(rng),

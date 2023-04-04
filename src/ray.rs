@@ -1,7 +1,7 @@
-use crate::constants::MAX_BOUNCES;
+use crate::constants::{LOWER_SKY_COLOR, MAX_BOUNCES, UPPER_SKY_COLOR};
 use crate::hit::Hit;
 use crate::objects::Object;
-use crate::random::random_direction;
+use crate::random::random_unit_vector;
 use crate::vector3::Vector3;
 use rand::rngs::ThreadRng;
 
@@ -34,6 +34,12 @@ impl Ray {
     /// Returns the direction of the ray
     pub fn direction(self) -> Vector3 {
         self.direction
+    }
+
+    /// Gets the environment light of a ray
+    pub fn get_environment_light(self) -> Vector3 {
+        let lerp_amount: f64 = (self.direction.y() + 1.0) * 0.5;
+        LOWER_SKY_COLOR.lerp(&UPPER_SKY_COLOR, lerp_amount)
     }
 
     /// Returns the closest valid hit for this ray
@@ -76,22 +82,28 @@ impl Ray {
         let mut ray = self;
 
         for _ in 0..MAX_BOUNCES {
-            let ray_hit = ray.get_hit(objects);
+            let optional_hit = ray.get_hit(objects);
 
-            match ray_hit {
-                None => break,
-                Some(real_ray_hit) => {
-                    // calculate the direction of the new ray
-                    let mut new_ray_direction = random_direction(rng);
+            match optional_hit {
+                None => {
+                    light += ray.get_environment_light() * color;
+                    break;
+                }
 
-                    // verify that direction is valid
-                    if new_ray_direction.dot(&real_ray_hit.normal) < 0.0 {
-                        new_ray_direction *= -1.0;
-                    }
+                Some(hit) => {
+                    // calculate diffuse direction
+                    let diffuse_direction = random_unit_vector(rng) + hit.normal;
 
-                    ray = Ray::new(real_ray_hit.point, new_ray_direction);
+                    // calculate reflect direction
+                    let reflect_direction = ray.direction.reflect_across(&hit.normal);
 
-                    let material = real_ray_hit.material;
+                    // account for smoothness
+                    let new_ray_direction =
+                        diffuse_direction.lerp(&reflect_direction, hit.material.smoothness);
+
+                    ray = Ray::new(hit.point, new_ray_direction);
+
+                    let material = hit.material;
                     let emitted_light = material.emission_color * material.emission_strength;
                     light += emitted_light * color;
                     color *= material.color;

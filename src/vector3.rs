@@ -9,7 +9,7 @@ pub struct Vector3 {
 
 impl Vector3 {
     /// Returns <0, 0, 0>
-    pub fn default() -> Vector3 {
+    pub const fn default() -> Vector3 {
         Vector3::new(0.0, 0.0, 0.0)
     }
 
@@ -70,8 +70,14 @@ impl Vector3 {
     }
 
     /// Reflects a Vector3 across a normalized vector
-    pub fn reflect(self, normal: &Vector3) -> Vector3 {
-        self - 2.0 * (self * *normal) * *normal
+    pub fn reflect_across(self, normal: &Vector3) -> Vector3 {
+        self - 2.0 * self.dot(normal) * *normal
+    }
+
+    /// Linearly interpolates between two vectors
+    /// (assumes self is starting vector)
+    pub fn lerp(self, other: &Vector3, t: f64) -> Vector3 {
+        (1.0 - t) * self + t * *other
     }
 }
 
