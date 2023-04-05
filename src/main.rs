@@ -57,13 +57,13 @@ struct Cli {
 fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
     let objects: [&dyn Object; 7] = [
         &Sphere::new(
-            Vector3::new(16.0, 0.0, 80.0),
-            8.0,
+            Vector3::new(60.0, -4.0, 10.0),
+            30.0,
             Material::new(
                 Color::new(0.0, 0.0, 0.0),
                 0.0,
                 Color::new(0.93, 0.95, 0.2),
-                8.0,
+                2.0,
             ),
         ),
         &Sphere::new(
@@ -131,8 +131,8 @@ fn main() -> anyhow::Result<()> {
 
     // create a camera
     let camera = Camera::new(
-        Vector3::new(-4.0, 0.0, 8.0),
-        Quaternion::new(Vector3::new(0.0, 1.0, 0.0), 40.0),
+        Vector3::new(-3.0, -2.0, 10.0),
+        Quaternion::new_from_angles(0.0, 52.0, 10.0),
         HORIZONTAL_FOV_DEGREES,
         ASPECT_RATIO,
     );

@@ -31,6 +31,26 @@ impl Quaternion {
 
     /// Creates a new Quaternion from a direction to point in
     /// and a rotation about that vector
+    pub fn new_from_angles(roll_degrees: f64, pitch_degrees: f64, yaw_degrees: f64) -> Quaternion {
+        // converts angles to degrees then divides by two
+        let angle_constant = PI / 360.0;
+
+        // who knows what these are I got this function from
+        // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+        let cr = (roll_degrees * angle_constant).cos();
+        let sr = (roll_degrees * angle_constant).sin();
+        let cp = (pitch_degrees * angle_constant).cos();
+        let sp = (pitch_degrees * angle_constant).sin();
+        let cy = (yaw_degrees * angle_constant).cos();
+        let sy = (yaw_degrees * angle_constant).sin();
+
+        Quaternion::new_raw(
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+        )
+    }
 
     /// Creates a new Quaternion directly from w, x, y, and z components
     /// (useful for hamiltonian products)
