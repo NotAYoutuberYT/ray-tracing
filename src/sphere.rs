@@ -13,7 +13,7 @@ pub struct Sphere {
 
 impl Sphere {
     /// Creates a new sphere from a center, radius, and material
-    pub fn new(center: Vector3, radius: f64, material: Material) -> Sphere {
+    pub const fn new(center: Vector3, radius: f64, material: Material) -> Sphere {
         Sphere {
             center,
             radius,

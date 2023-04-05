@@ -8,24 +8,16 @@ mod random;
 mod ray;
 mod sphere;
 mod vector3;
+mod world;
 
 extern crate anyhow;
 
-use crate::camera::Camera;
-use crate::constants::{
-    ANTIALIASING_STRENGTH, ASPECT_RATIO, HORIZONTAL_FOV_DEGREES, IMAGE_HEIGHT, IMAGE_WIDTH,
-    RAYS_PER_PIXEL,
-};
-use crate::material::Material;
-use crate::objects::Object;
-use crate::quaternion::Quaternion;
-use crate::sphere::Sphere;
+use crate::constants::{ANTIALIASING_STRENGTH, IMAGE_HEIGHT, IMAGE_WIDTH, RAYS_PER_PIXEL};
+use crate::world::{get_camera, OBJECTS};
 use anyhow::Context;
 use clap::Parser;
 use progress_bar::{finalize_progress_bar, inc_progress_bar, init_progress_bar};
-use rand::rngs::ThreadRng;
 use rand::Rng;
-use ray::Ray;
 use std::fs;
 use std::fs::File;
 use std::io::{Seek, Write};
@@ -33,7 +25,6 @@ use std::path::PathBuf;
 use std::thread;
 use std::thread::JoinHandle;
 use vector3::Vector3 as Color;
-use vector3::Vector3;
 
 pub fn write_color(file: &mut File, color: &Color) -> anyhow::Result<()> {
     let integer_red = (255.999 * color[0]) as u8;
@@ -52,53 +43,6 @@ pub fn write_color(file: &mut File, color: &Color) -> anyhow::Result<()> {
 #[command(version, about, long_about = None)]
 struct Cli {
     file: PathBuf,
-}
-
-fn ray_color(ray: Ray, rng: &mut ThreadRng) -> Color {
-    let objects: [&dyn Object; 7] = [
-        &Sphere::new(
-            Vector3::new(60.0, -4.0, 10.0),
-            30.0,
-            Material::new(
-                Color::new(0.0, 0.0, 0.0),
-                0.0,
-                Color::new(0.93, 0.95, 0.2),
-                2.0,
-            ),
-        ),
-        &Sphere::new(
-            Vector3::new(0.0, 0.0, -31.0),
-            30.0,
-            Material::new_lightless(Color::new(0.8, 0.2, 0.2), 0.0),
-        ),
-        &Sphere::new(
-            Vector3::new(9.0, -10.0, -1.0),
-            2.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
-        ),
-        &Sphere::new(
-            Vector3::new(11.0, -5.0, -1.0),
-            2.0,
-            Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
-        ),
-        &Sphere::new(
-            Vector3::new(12.0, 0.0, -1.0),
-            2.0,
-            Material::new_lightless(Color::new(0.6, 0.0, 0.6), 1.0),
-        ),
-        &Sphere::new(
-            Vector3::new(11.0, 5.0, -1.0),
-            2.0,
-            Material::new_lightless(Color::new(0.4, 0.4, 0.4), 0.5),
-        ),
-        &Sphere::new(
-            Vector3::new(9.0, 10.0, -1.0),
-            2.0,
-            Material::new_lightless(Color::new(0.2, 0.8, 0.2), 0.0),
-        ),
-    ];
-
-    ray.trace(&objects, rng)
 }
 
 fn main() -> anyhow::Result<()> {
@@ -129,16 +73,11 @@ fn main() -> anyhow::Result<()> {
         .write(format!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT).as_bytes())
         .with_context(|| format!("Issue writing to file `{}`", args.file.display()))?;
 
-    // create a camera
-    let camera = Camera::new(
-        Vector3::new(-3.0, -2.0, 10.0),
-        Quaternion::new_from_angles(0.0, 52.0, 10.0),
-        HORIZONTAL_FOV_DEGREES,
-        ASPECT_RATIO,
-    );
-
     // multithreading handles
     let mut handles: Vec<JoinHandle<Vec<Color>>> = Vec::new();
+
+    // used for rendering
+    let camera = get_camera();
 
     for pixel_y in (0..IMAGE_HEIGHT).rev() {
         let pixel_y_clone = pixel_y;
@@ -161,7 +100,7 @@ fn main() -> anyhow::Result<()> {
                         + rng.gen::<f64>() * ANTIALIASING_STRENGTH / IMAGE_HEIGHT as f64;
 
                     let ray = camera_clone.get_ray(width_ratio, height_ratio);
-                    let sample_color = ray_color(ray, &mut rng);
+                    let sample_color = ray.trace(&OBJECTS, &mut rng);
 
                     pixel_color += sample_color;
                 }

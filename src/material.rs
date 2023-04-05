@@ -11,7 +11,7 @@ pub struct Material {
 
 impl Material {
     /// Creates a new Material
-    pub fn new(
+    pub const fn new(
         color: Vector3,
         smoothness: f64,
         emission_color: Vector3,
@@ -26,7 +26,7 @@ impl Material {
     }
 
     /// Creates a new Material with no emission
-    pub fn new_lightless(color: Vector3, smoothness: f64) -> Material {
+    pub const fn new_lightless(color: Vector3, smoothness: f64) -> Material {
         Material {
             color,
             smoothness,

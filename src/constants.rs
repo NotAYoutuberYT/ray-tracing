@@ -1,13 +1,13 @@
 use crate::vector3::Vector3;
 
 // camera info
-pub const IMAGE_WIDTH: u32 = 800;
-pub const IMAGE_HEIGHT: u32 = 450;
-pub const HORIZONTAL_FOV_DEGREES: f64 = 90.0;
+pub const IMAGE_WIDTH: u32 = 4096;
+pub const IMAGE_HEIGHT: u32 = 2160;
+pub const HORIZONTAL_FOV_DEGREES: f64 = 80.0;
 
 // image quality
-pub const MAX_BOUNCES: u32 = 7;
-pub const RAYS_PER_PIXEL: u32 = 1250;
+pub const MAX_BOUNCES: u32 = 12;
+pub const RAYS_PER_PIXEL: u32 = 750;
 pub const ANTIALIASING_STRENGTH: f64 = 1.0;
 
 // sky colors
