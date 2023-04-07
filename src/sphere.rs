@@ -5,6 +5,7 @@ use crate::ray::Ray;
 use crate::vector3::Vector3;
 
 /// A basic sphere
+#[derive(Copy, Clone)]
 pub struct Sphere {
     center: Vector3,
     radius: f64,
@@ -57,8 +58,12 @@ impl Object for Sphere {
         // extrapolate the point of the hit, the normal vector, and if
         // the hit was from the outside of the object or not
         let hit_point = ray.at(distance);
-        let normal_vector = (hit_point - self.center) / self.radius;
+        let mut normal_vector = (hit_point - self.center) / self.radius;
         let outside_hit = normal_vector.dot(&ray.direction()) <= 0.0;
+
+        if !outside_hit {
+            normal_vector *= -1.0;
+        }
 
         Some(Hit::new(
             distance,
@@ -67,9 +72,5 @@ impl Object for Sphere {
             outside_hit,
             self.material,
         ))
-    }
-
-    fn material(self) -> Material {
-        self.material
     }
 }

@@ -4,6 +4,7 @@ use crate::objects::Object;
 use crate::random::random_unit_vector;
 use crate::vector3::Vector3;
 use rand::rngs::ThreadRng;
+use std::sync::Arc;
 
 /// A simple ray representing a ray of light
 #[derive(Copy, Clone)]
@@ -37,13 +38,13 @@ impl Ray {
     }
 
     /// Gets the environment light of a ray
-    pub fn get_environment_light(self) -> Vector3 {
+    fn get_environment_light(self) -> Vector3 {
         let lerp_amount: f64 = (self.direction.z() + 1.0) * 0.5;
         LOWER_SKY_COLOR.lerp(&UPPER_SKY_COLOR, lerp_amount)
     }
 
     /// Returns the closest valid hit for this ray
-    pub fn get_hit(&self, objects: &[&dyn Object]) -> Option<Hit> {
+    fn get_hit(&self, objects: &[Arc<dyn Object + Send + Sync>]) -> Option<Hit> {
         // keeps track of the closest hit to the ray
         let mut closest_hit: Option<Hit> = None;
 
@@ -73,7 +74,7 @@ impl Ray {
     }
 
     /// Traces a vector and returns the calculated color
-    pub fn trace(self, objects: &[&dyn Object], rng: &mut ThreadRng) -> Vector3 {
+    pub fn trace(self, objects: &[Arc<dyn Object + Send + Sync>], rng: &mut ThreadRng) -> Vector3 {
         // variables to collect color and light of the ray
         let mut color = Vector3::new(1.0, 1.0, 1.0);
         let mut light = Vector3::default();
@@ -107,12 +108,9 @@ impl Ray {
                     let material = hit.material;
                     let emitted_light = material.emission_color * material.emission_strength;
 
-                    // used to adjust for lambert's cos law
-                    let light_intensity = hit.normal.dot(&ray.direction);
-
                     // update light and color
                     light += emitted_light * color;
-                    color *= material.color * light_intensity * BRIGHTNESS;
+                    color *= material.color * BRIGHTNESS;
                 }
             }
         }
