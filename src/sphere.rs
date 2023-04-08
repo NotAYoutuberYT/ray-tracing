@@ -30,9 +30,9 @@ impl Object for Sphere {
 
         // get the the coefficients for the quadratic equation that needs
         // to be solved to get the distance for the hit
-        let quadratic_a = ray.direction().length_squared();
+        let quadratic_a = ray.direction().magnitude_squared();
         let half_quadratic_b = relative_ray_origin.dot(&ray.direction());
-        let quadratic_c = relative_ray_origin.length_squared() - self.radius * self.radius;
+        let quadratic_c = relative_ray_origin.magnitude_squared() - self.radius * self.radius;
 
         // solve for the inside of the square root in the quadratic formula
         let quadratic_root = half_quadratic_b * half_quadratic_b - quadratic_a * quadratic_c;

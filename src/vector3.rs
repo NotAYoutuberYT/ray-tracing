@@ -36,24 +36,24 @@ impl Vector3 {
 
     /// Returns the normalized version of a vector
     pub fn normalized(self) -> Vector3 {
-        self / self.length()
+        self / self.magnitude()
     }
 
     /// Sets a vector to its normalized version
     pub fn normalize(&mut self) {
-        *self /= self.length();
+        *self /= self.magnitude();
     }
 
-    /// Gets the length of the vector squared (significantly
+    /// Gets the magnitude of the vector squared (significantly
     /// faster than getting the exact length)
-    pub fn length_squared(self) -> f64 {
+    pub fn magnitude_squared(self) -> f64 {
         self[0] * self[0] + self[1] * self[1] + self[2] * self[2]
     }
 
     /// Gets the length of the vector (use length_squared
     /// if possible, as this is very slow
-    pub fn length(self) -> f64 {
-        self.length_squared().sqrt()
+    pub fn magnitude(self) -> f64 {
+        self.magnitude_squared().sqrt()
     }
 
     /// Returns the dot product of two vectors
@@ -83,11 +83,11 @@ impl Vector3 {
 
     /// Rotates a vector by a Quaternion
     pub fn rotate_by(self, rotation: Quaternion) -> Vector3 {
-        let rotation_prime = rotation.negated_vector();
-        let quaternion_point = Quaternion::new_raw(0.0, self.x(), self.y(), self.z());
+        let rotation_conjugate = rotation.conjugate();
+        let point_quaternion = Quaternion::new_raw(0.0, self.x(), self.y(), self.z());
 
         // we can calculate the rotated vector by doing a few hamiltonian products
-        let quaternion_vector = (rotation * quaternion_point) * rotation_prime;
+        let quaternion_vector = (rotation * point_quaternion) * rotation_conjugate;
 
         // discard w
         Vector3::new(

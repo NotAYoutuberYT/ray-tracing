@@ -44,7 +44,7 @@ impl Ray {
     }
 
     /// Returns the closest valid hit for this ray
-    fn get_hit(&self, objects: &[Arc<dyn Object + Send + Sync>]) -> Option<Hit> {
+    pub fn find_first_hit(&self, objects: &[Arc<dyn Object + Send + Sync>]) -> Option<Hit> {
         // keeps track of the closest hit to the ray
         let mut closest_hit: Option<Hit> = None;
 
@@ -73,6 +73,25 @@ impl Ray {
         closest_hit
     }
 
+    /// Returns the closest valid hit in a vector of hits
+    pub fn get_best_hit(&self, hits: Vec<Hit>) -> Option<Hit> {
+        // keeps track of the closest hit to the ray
+        let mut closest_hit: Option<Hit> = None;
+
+        for hit in hits {
+            match closest_hit {
+                None => closest_hit = Some(hit),
+                Some(current_closest_hit) => {
+                    if current_closest_hit.distance > hit.distance {
+                        closest_hit = Some(hit)
+                    }
+                }
+            }
+        }
+
+        closest_hit
+    }
+
     /// Traces a vector and returns the calculated color
     pub fn trace(self, objects: &[Arc<dyn Object + Send + Sync>], rng: &mut ThreadRng) -> Vector3 {
         // variables to collect color and light of the ray
@@ -83,7 +102,7 @@ impl Ray {
         let mut ray = self;
 
         for _ in 0..MAX_BOUNCES {
-            let optional_hit = ray.get_hit(objects);
+            let optional_hit = ray.find_first_hit(objects);
 
             match optional_hit {
                 None => {

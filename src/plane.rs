@@ -13,6 +13,7 @@ pub struct Plane {
 }
 
 impl Plane {
+    /// Creates a new plane from a point on the plane and the plane's normal
     pub fn new(point: Vector3, normal: Vector3, material: Material) -> Plane {
         Plane {
             point,
@@ -36,9 +37,9 @@ impl Object for Plane {
         // find distance of hit
         let distance = numerator / denominator;
 
-        // don't take hits behind or too close to the ray (epsilon * 120
+        // don't take hits behind or too close to the ray (epsilon * 150
         // seems to be the sweet spot for avoiding artifacts)
-        if distance <= f64::EPSILON * 120.0 {
+        if distance <= f64::EPSILON * 150.0 {
             return None;
         }
 
@@ -47,12 +48,12 @@ impl Object for Plane {
             false => (-self.normal, true),
         };
 
-        Some(Hit {
+        Some(Hit::new(
             distance,
-            point: ray.at(distance),
-            normal: true_normal,
+            ray.at(distance),
+            true_normal,
             outside_face,
-            material: self.material,
-        })
+            self.material,
+        ))
     }
 }

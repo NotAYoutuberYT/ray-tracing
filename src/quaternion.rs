@@ -63,7 +63,7 @@ impl Quaternion {
         Quaternion::new(Vector3::new(0.0, 0.0, 1.0), 0.0)
     }
 
-    /// Returns the w component of the Quaternion
+    /// Returns the scalar component of the Quaternion
     pub fn w(self) -> f64 {
         self.w
     }
@@ -83,9 +83,25 @@ impl Quaternion {
         self.z
     }
 
-    /// Negates the x, y, and z components of the Quaternion
-    pub fn negated_vector(self) -> Quaternion {
+    /// Returns the conjugate of the Quaternion
+    pub fn conjugate(self) -> Quaternion {
         Quaternion::new_raw(self.w, -self.x, -self.y, -self.z)
+    }
+
+    /// Returns the magnitude of the Quaternion squared
+    /// (Note: this is much faster than actual magnitude)
+    pub fn magnitude_squared(self) -> f64 {
+        self.w * self.w + self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    /// Returns the magnitude of the Quaternion
+    pub fn magnitude(self) -> f64 {
+        self.magnitude_squared().sqrt()
+    }
+
+    /// Returns the inverse of the Quaternion
+    pub fn inverse(self) -> Quaternion {
+        self.conjugate() / self.magnitude_squared()
     }
 
     /// Computes the hamiltonian product between two Quaternions
@@ -110,5 +126,21 @@ impl ops::Mul<Quaternion> for Quaternion {
 impl ops::MulAssign<Quaternion> for Quaternion {
     fn mul_assign(&mut self, rhs: Quaternion) {
         *self = *self * rhs
+    }
+}
+
+impl ops::Mul<f64> for Quaternion {
+    type Output = Quaternion;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Quaternion::new_raw(self.w * rhs, self.x * rhs, self.y * rhs, self.z * rhs)
+    }
+}
+
+impl ops::Div<f64> for Quaternion {
+    type Output = Quaternion;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        self * (1.0 / rhs)
     }
 }

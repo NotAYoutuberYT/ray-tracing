@@ -1,3 +1,5 @@
+mod aabb;
+mod r#box;
 mod camera;
 mod constants;
 mod hit;
@@ -21,6 +23,7 @@ use crate::material::Material;
 use crate::objects::Object;
 use crate::plane::Plane;
 use crate::quaternion::Quaternion;
+use crate::r#box::BoxObject;
 use crate::sphere::Sphere;
 use crate::vector3::Vector3;
 use anyhow::Context;
@@ -98,9 +101,12 @@ fn main() -> anyhow::Result<()> {
                 2.5,
             ),
         )),
-        Arc::new(Sphere::new(
-            Vector3::new(10.0, -7.0, 0.5),
-            4.0,
+        Arc::new(BoxObject::new(
+            Vector3::new(20.0, -10.0, 0.5),
+            7.0,
+            7.0,
+            7.0,
+            Quaternion::new_from_angles(45.0, 0.0, 45.0),
             Material::new_lightless(Color::new(0.8, 0.45, 0.45), 0.0),
         )),
         Arc::new(Sphere::new(
