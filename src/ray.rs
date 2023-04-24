@@ -21,7 +21,7 @@ impl Ray {
         Ray {
             origin,
             direction: direction_normalized,
-            inverse_direction: -direction_normalized
+            inverse_direction: Vector3::default() / direction_normalized,
         }
     }
 

@@ -87,18 +87,25 @@ impl Aabb {
     }
 
     fn intersected_by_ray(&self, ray: &Ray) -> bool {
-        let mut tmin: f64 = f64::NEG_INFINITY;
-        let mut tmax: f64 = f64::INFINITY;
+        let tx1 = (self.min_corner.x() - ray.origin().x()) * ray.inverse_direction().x();
+        let tx2 = (self.max_corner.x() - ray.origin().x()) * ray.inverse_direction().x();
 
-        for d in 0..3 {
-            let t1 = (self.min_corner[d] - ray.origin()[d]) * ray.inverse_direction()[d];
-            let t2 = (self.max_corner[d] - ray.origin()[d]) * ray.inverse_direction()[d];
+        let mut tmin = tx1.min(tx2);
+        let mut tmax = tx1.max(tx2);
 
-            tmin = tmin.max(t1.min(t2));
-            tmax = tmax.min(t1.max(t2));
-        }
+        let ty1 = (self.min_corner.y() - ray.origin().y()) * ray.inverse_direction().y();
+        let ty2 = (self.max_corner.y() - ray.origin().y()) * ray.inverse_direction().y();
 
-        tmin < tmax
+        tmin = tmin.max(ty1.min(ty2));
+        tmax = tmax.min(ty1.max(ty2));
+
+        let tz1 = (self.min_corner.z() - ray.origin().z()) * ray.inverse_direction().z();
+        let tz2 = (self.max_corner.z() - ray.origin().z()) * ray.inverse_direction().z();
+
+        tmin = tmin.max(tz1.min(tz2));
+        tmax = tmax.min(tz1.max(tz2));
+
+        tmax >= tmin.max(0.0)
     }
 }
 

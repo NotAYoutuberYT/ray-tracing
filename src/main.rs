@@ -31,12 +31,12 @@ use clap::Parser;
 use progress_bar::{finalize_progress_bar, inc_progress_bar, init_progress_bar};
 use rand::Rng;
 use std::io::BufWriter;
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 use std::{fs, iter};
-use std::ops::Deref;
 use vector3::Vector3 as Color;
 
 #[derive(Parser)]
