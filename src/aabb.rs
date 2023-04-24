@@ -9,6 +9,8 @@ use crate::vector3::Vector3;
 pub struct Aabb {
     sides: [Plane; 6],
     center: Vector3,
+    min_corner: Vector3,
+    max_corner: Vector3,
     half_x_axis_span: f64,
     half_y_axis_span: f64,
     half_z_axis_span: f64,
@@ -26,10 +28,10 @@ impl Aabb {
     ) -> Aabb {
         // because we're working from the center of the object, half the
         // dimensions will be more useful than the actual dimensions
-        // (they're also preemptively made into vectors)
-        let half_x_span_vector = Vector3::new(x_axis_length / 2.0, 0.0, 0.0);
-        let half_y_span_vector = Vector3::new(0.0, y_axis_width / 2.0, 0.0);
-        let half_z_span_vector = Vector3::new(0.0, 0.0, z_axis_height / 2.0);
+        // (the abs makes finding max and min corners trivial)
+        let half_x_span_vector = Vector3::new(x_axis_length.abs() / 2.0, 0.0, 0.0);
+        let half_y_span_vector = Vector3::new(0.0, y_axis_width.abs() / 2.0, 0.0);
+        let half_z_span_vector = Vector3::new(0.0, 0.0, z_axis_height.abs() / 2.0);
 
         // create all the planes
         let front_plane = Plane::new(
@@ -76,15 +78,37 @@ impl Aabb {
         Aabb {
             sides,
             center,
+            min_corner: center - half_x_span_vector - half_y_span_vector - half_z_span_vector,
+            max_corner: center + half_x_span_vector + half_y_span_vector + half_z_span_vector,
             half_x_axis_span: x_axis_length / 2.0,
             half_y_axis_span: y_axis_width / 2.0,
             half_z_axis_span: z_axis_height / 2.0,
         }
     }
+
+    fn intersected_by_ray(&self, ray: &Ray) -> bool {
+        let mut tmin: f64 = f64::NEG_INFINITY;
+        let mut tmax: f64 = f64::INFINITY;
+
+        for d in 0..3 {
+            let t1 = (self.min_corner[d] - ray.origin()[d]) * ray.inverse_direction()[d];
+            let t2 = (self.max_corner[d] - ray.origin()[d]) * ray.inverse_direction()[d];
+
+            tmin = tmin.max(t1.min(t2));
+            tmax = tmax.min(t1.max(t2));
+        }
+
+        tmin < tmax
+    }
 }
 
 impl Object for Aabb {
     fn get_hit(&self, ray: &Ray) -> Option<Hit> {
+        // don't do complex calculations if no ray is intersected
+        if !self.intersected_by_ray(ray) {
+            return None;
+        }
+
         // these will store the ray intersections for each plane
         let mut face_hits: Vec<Hit> = Vec::new();
 

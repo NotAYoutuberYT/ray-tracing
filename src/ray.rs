@@ -11,14 +11,17 @@ use std::sync::Arc;
 pub struct Ray {
     origin: Vector3,
     direction: Vector3,
+    inverse_direction: Vector3,
 }
 
 impl Ray {
     /// Creates a new ray from an origin and a direction
     pub fn new(origin: Vector3, direction: Vector3) -> Ray {
+        let direction_normalized = direction.normalized();
         Ray {
             origin,
-            direction: direction.normalized(),
+            direction: direction_normalized,
+            inverse_direction: -direction_normalized
         }
     }
 
@@ -35,6 +38,11 @@ impl Ray {
     /// Returns the direction of the ray
     pub fn direction(self) -> Vector3 {
         self.direction
+    }
+
+    /// Returns the inverse of the direction of the ray
+    pub fn inverse_direction(self) -> Vector3 {
+        self.inverse_direction
     }
 
     /// Gets the environment light of a ray
