@@ -7,11 +7,11 @@ pub const HORIZONTAL_FOV_DEGREES: f64 = 80.0;
 
 // image quality
 pub const MAX_BOUNCES: u32 = 8;
-pub const RAYS_PER_PIXEL_PER_THREAD: u32 = 20;
+pub const RAYS_PER_PIXEL_PER_THREAD: u32 = 12;
 pub const ANTIALIASING_STRENGTH: f64 = 1.0;
 
 // multithreading
-pub const THREADS: usize = 128;
+pub const THREADS: usize = 2056;
 
 // sky colors
 pub const LOWER_SKY_COLOR: Vector3 = Vector3::new(1.0, 1.0, 1.0);

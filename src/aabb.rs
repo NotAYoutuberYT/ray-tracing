@@ -6,7 +6,7 @@ use crate::ray::Ray;
 use crate::vector3::Vector3;
 
 /// Represents a single axis-aligned bounding box
-pub struct AABB {
+pub struct Aabb {
     sides: [Plane; 6],
     center: Vector3,
     half_x_axis_span: f64,
@@ -14,7 +14,7 @@ pub struct AABB {
     half_z_axis_span: f64,
 }
 
-impl AABB {
+impl Aabb {
     /// Creates a new axis-aligned bounding box from a
     /// center, length, width, height, and material
     pub fn new(
@@ -23,7 +23,7 @@ impl AABB {
         y_axis_width: f64,
         z_axis_height: f64,
         material: Material,
-    ) -> AABB {
+    ) -> Aabb {
         // because we're working from the center of the object, half the
         // dimensions will be more useful than the actual dimensions
         // (they're also preemptively made into vectors)
@@ -73,7 +73,7 @@ impl AABB {
             bottom_plane,
         ];
 
-        AABB {
+        Aabb {
             sides,
             center,
             half_x_axis_span: x_axis_length / 2.0,
@@ -83,7 +83,7 @@ impl AABB {
     }
 }
 
-impl Object for AABB {
+impl Object for Aabb {
     fn get_hit(&self, ray: &Ray) -> Option<Hit> {
         // these will store the ray intersections for each plane
         let mut face_hits: Vec<Hit> = Vec::new();

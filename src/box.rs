@@ -1,4 +1,4 @@
-use crate::aabb::AABB;
+use crate::aabb::Aabb;
 use crate::hit::Hit;
 use crate::material::Material;
 use crate::objects::Object;
@@ -13,7 +13,7 @@ pub struct BoxObject {
     // the ray to match what the scene would look
     // like if the box were properly setup in the
     // first place relative to the ray
-    adjusted_aabb: AABB,
+    adjusted_aabb: Aabb,
     rotation: Quaternion,
     rotation_inverse: Quaternion,
     true_center: Vector3,
@@ -30,7 +30,7 @@ impl BoxObject {
         material: Material,
     ) -> BoxObject {
         BoxObject {
-            adjusted_aabb: AABB::new(
+            adjusted_aabb: Aabb::new(
                 Vector3::default(),
                 x_axis_length,
                 y_axis_width,

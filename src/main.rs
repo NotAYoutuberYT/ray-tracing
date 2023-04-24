@@ -30,26 +30,14 @@ use anyhow::Context;
 use clap::Parser;
 use progress_bar::{finalize_progress_bar, inc_progress_bar, init_progress_bar};
 use rand::Rng;
-use std::fs::File;
-use std::io::{Seek, Write};
+use std::io::BufWriter;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 use std::{fs, iter};
+use std::ops::Deref;
 use vector3::Vector3 as Color;
-
-pub fn write_color(file: &mut File, color: &Color) -> anyhow::Result<()> {
-    let integer_red = (255.999 * color[0]) as u8;
-    let integer_green = (255.999 * color[1]) as u8;
-    let integer_blue = (255.999 * color[2]) as u8;
-
-    // write rgb value to file
-    file.write(format!("{} {} {}\n", integer_red, integer_green, integer_blue).as_bytes())
-        .with_context(|| "Issue writing to file".to_string())?;
-
-    Ok(())
-}
 
 #[derive(Parser)]
 #[command(author = "<utbryceh@gmail.com>")]
@@ -66,25 +54,13 @@ fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
 
     // open the file
-    let mut output_file = fs::OpenOptions::new()
+    let output_file = fs::OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
         .open(&args.file)
         .with_context(|| format!("Issue opening file `{}`", args.file.display()))?;
-
-    // clear file
-    output_file
-        .set_len(0)
-        .with_context(|| format!("Issue modifying file `{}`", args.file.display()))?;
-    output_file
-        .rewind()
-        .with_context(|| "Issue seeking beginning of file after clearing")?;
-
-    // output ppm info
-    output_file
-        .write(format!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT).as_bytes())
-        .with_context(|| format!("Issue writing to file `{}`", args.file.display()))?;
+    let file_writer = BufWriter::new(output_file);
 
     // multithreading handles
     let mut handles: Vec<JoinHandle<Vec<Color>>> = Vec::new();
@@ -178,12 +154,33 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    finalize_progress_bar();
+    // get the png output data
+    let mut image_data = Box::new([0; IMAGE_WIDTH as usize * IMAGE_HEIGHT as usize * 3]);
+    for (i, color) in pixel_colors.iter().enumerate() {
+        let averaged_color = *color / THREADS as f64;
 
-    for color in pixel_colors {
-        let averaged_color = color / THREADS as f64;
-        write_color(&mut output_file, &averaged_color)?;
+        let red = (255.999 * averaged_color[0]) as u8;
+        let green = (255.999 * averaged_color[1]) as u8;
+        let blue = (255.999 * averaged_color[2]) as u8;
+
+        image_data[i * 3] = red;
+        image_data[i * 3 + 1] = green;
+        image_data[i * 3 + 2] = blue;
     }
+
+    // get an encoder for the png
+    let mut png_encoder = png::Encoder::new(file_writer, IMAGE_WIDTH, IMAGE_HEIGHT);
+    png_encoder.set_color(png::ColorType::Rgb);
+    png_encoder.set_depth(png::BitDepth::Eight);
+
+    // write the data with the encoder
+    png_encoder
+        .write_header()
+        .with_context(|| "Failed to get a png write header")?
+        .write_image_data(image_data.deref())
+        .with_context(|| "Failed to write to file")?;
+
+    finalize_progress_bar();
 
     Ok(())
 }
